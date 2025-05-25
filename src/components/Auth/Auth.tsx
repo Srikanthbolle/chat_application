@@ -1,9 +1,11 @@
-
+import { useMutation } from "@apollo/client";
 import { Avatar, Box, Button, CircularProgress, Container, Stack, TextField, Typography } from "@mui/material";
 import { Session } from "next-auth";
 import { signIn } from "next-auth/react";
 import React, { useState } from "react";
-import GoogleIcon from '@mui/icons-material/Google';
+import toast from "react-hot-toast";
+import UserOperations from "../../graphql/operations/users";
+import { CreateUsernameData, CreateUsernameVariables } from "../../util/types";
 
 interface AuthProps {
   session: Session | null;
@@ -13,30 +15,66 @@ interface AuthProps {
 const Auth: React.FC<AuthProps> = ({ session, reloadSession }) => {
   const [username, setUsername] = useState("");
 
+  const [createUsername, { data, loading, error }] = useMutation<
+    CreateUsernameData,
+    CreateUsernameVariables
+  >(UserOperations.Mutations.createUsername);
+
+  const onSubmit = async () => {
+    if (!username) return;
+
+    try {
+      const { data } = await createUsername({
+        variables: {
+          username,
+        },
+      });
+
+      if (!data?.createUsername) {
+        throw new Error();
+      }
+
+      if (data.createUsername.error) {
+        const {
+          createUsername: { error },
+        } = data;
+
+        toast.error(error);
+        return;
+      }
+
+      toast.success("Username successfully created");
+
+      /**
+       * Reload session to obtain new username
+       */
+      reloadSession();
+    } catch (error) {
+      toast.error("There was an error");
+      console.log("onSubmit error", error);
+    }
+  };
 
   return (
-    <Container maxWidth="sm" sx={{ height: '100vh', display: 'flex', alignItems: 'center' }}>
-      <Stack spacing={4} width="100%" alignItems="center">
+    <Container maxWidth="sm" sx={{ height: "100vh", display: "flex", alignItems: "center" }}>
+      <Stack spacing={4} sx={{ width: "100%", textAlign: "center" }}>
         {session ? (
           <>
-            <Typography variant="h4" component="h1">
-              Create a Username
-            </Typography>
+            <Typography variant="h4">Create a Username</Typography>
             <TextField
-              fullWidth
-              label="Enter a username"
-              variant="outlined"
+              placeholder="Enter a username"
               value={username}
               onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                 setUsername(event.target.value)
               }
-            />
-            <Button
               fullWidth
-              variant="contained"
-              onClick={onSubmit}
-              
-              startIcon={loading ? <CircularProgress size={20} /> : null}
+            />
+            <Button 
+              onClick={onSubmit} 
+              variant="contained" 
+              fullWidth
+              disabled={loading}
+              endIcon={loading ? <CircularProgress size={20} /> : null}
             >
               Save
             </Button>
@@ -45,21 +83,18 @@ const Auth: React.FC<AuthProps> = ({ session, reloadSession }) => {
           <>
             <Avatar 
               src="/images/imessage-logo.png" 
-              sx={{ width: 100, height: 100, mb: 2 }} 
-              variant="rounded"
+              sx={{ width: 100, height: 100, margin: "0 auto" }} 
             />
-            <Typography variant="h3" component="h1">
-              MessengerQL
-            </Typography>
-            <Typography variant="body1" textAlign="center" sx={{ maxWidth: '70%' }}>
-              Sign in with Google to send unlimited free messages to your friends
+            <Typography variant="h3">MessengerQL</Typography>
+            <Typography sx={{ width: "70%", margin: "0 auto" }}>
+              Sign in with Google to send unlimited free messages to your
+              friends
             </Typography>
             <Button
-              variant="contained"
               onClick={() => signIn("google")}
-              startIcon={<GoogleIcon />}
-              size="large"
-              sx={{ mt: 2 }}
+              variant="contained"
+              startIcon={<Avatar src="/images/googlelogo.png" sx={{ width: 20, height: 20 }} />}
+              sx={{ margin: "0 auto" }}
             >
               Continue with Google
             </Button>

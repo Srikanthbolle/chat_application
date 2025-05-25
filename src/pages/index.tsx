@@ -7,7 +7,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { NextPageContext } from 'next';
 import { getSession, useSession } from 'next-auth/react';
 import { Session } from 'next-auth';
-import Chat from '@/components/Chat/chat';
+import Chat from '@/components/Chat';
 
 interface HomeProps {
   userData: Session | null;
@@ -26,7 +26,7 @@ export default function Home({ userData }: HomeProps) {
 
   return (
     <Box sx={{ p: 4 }}>
-      {session?.user ? <Chat /> : <Auth session={session} reloadSession={function (): void {
+      {session?.user ?.username? <Chat session={session}/> : <Auth session={session} reloadSession={function (): void {
         throw new Error('Function not implemented.');
       } }/>}
     </Box>

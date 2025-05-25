@@ -1,0 +1,115 @@
+import { useMutation } from "@apollo/client";
+import { Box, TextField } from "@mui/material";
+import { ObjectId } from "bson";
+import { Session } from "next-auth";
+import React, { useState } from "react";
+import toast from "react-hot-toast";
+import MessageOperations from "../../../graphql/operations/messages";
+import { MessagesData, SendMessageVariables } from "../../../util/types";
+
+interface MessageInputProps {
+  session: Session;
+  conversationId: string;
+}
+
+const MessageInput: React.FC<MessageInputProps> = ({
+  session,
+  conversationId,
+}) => {
+  const [messageBody, setMessageBody] = useState("");
+
+  const [sendMessage] = useMutation<
+    { sendMessage: boolean },
+    SendMessageVariables
+  >(MessageOperations.Mutations.sendMessage);
+
+  const onSendMessage = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    try {
+      const { id: senderId } = session.user;
+      const newId = new ObjectId().toString();
+      const newMessage: SendMessageVariables = {
+        id: newId,
+        senderId,
+        conversationId,
+        body: messageBody,
+      };
+      
+      const { data, errors } = await sendMessage({
+        variables: {
+          ...newMessage,
+        },
+        optimisticResponse: {
+          sendMessage: true,
+        },
+        update: (cache) => {
+          setMessageBody("");
+          const existing = cache.readQuery<MessagesData>({
+            query: MessageOperations.Query.messages,
+            variables: { conversationId },
+          }) as MessagesData;
+
+          cache.writeQuery<MessagesData, { conversationId: string }>({
+            query: MessageOperations.Query.messages,
+            variables: { conversationId },
+            data: {
+              ...existing,
+              messages: [
+                {
+                  id: newId,
+                  body: messageBody,
+                  senderId: session.user.id,
+                  conversationId,
+                  sender: {
+                    id: session.user.id,
+                    username: session.user.username,
+                  },
+                  createdAt: new Date(Date.now()),
+                  updatedAt: new Date(Date.now()),
+                },
+                ...existing.messages,
+              ],
+            },
+          });
+        },
+      });
+
+      if (!data?.sendMessage || errors) {
+        throw new Error("Error sending message");
+      }
+    } catch (error: any) {
+      console.log("onSendMessage error", error);
+      toast.error(error?.message);
+    }
+  };
+
+  return (
+    <Box px={4} py={6} width="100%">
+      <form onSubmit={onSendMessage}>
+        <TextField
+          fullWidth
+          value={messageBody}
+          onChange={(event) => setMessageBody(event.target.value)}
+          size="medium"
+          placeholder="New message"
+          sx={{
+            "& .MuiInputBase-root": {
+              color: "white",
+            },
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": {
+                borderColor: "rgba(255, 255, 255, 0.3)",
+              },
+              "&:hover fieldset": {
+                borderColor: "rgba(255, 255, 255, 0.3)",
+              },
+            },
+          }}
+        />
+      </form>
+    </Box>
+  );
+};
+
+export default MessageInput;
