@@ -1,43 +1,45 @@
-'use client';
+import { Box } from "@mui/material";
+import type { NextPage, NextPageContext } from "next";
+import { getSession, useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
+import Auth from "../components/Auth/Auth";
+import Chat from "../components/Chat";
 
-import Auth from '@/components/Auth/Auth';
+const Home: NextPage = () => {
+  const { data: session } = useSession();
+  const router = useRouter();
 
-import Box from '@mui/material/Box';
-import CircularProgress from '@mui/material/CircularProgress';
-import { NextPageContext } from 'next';
-import { getSession, useSession } from 'next-auth/react';
-import { Session } from 'next-auth';
-import Chat from '@/components/Chat';
+  const reloadSession = () => {
+    const event = new Event("visibilitychange");
+    document.dispatchEvent(event);
+  };
 
-interface HomeProps {
-  userData: Session | null;
-}
-
-export default function Home({ userData }: HomeProps) {
-  const { data: session, status } = useSession();
-  console.log('data is',session)
-  if (status === "loading") {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
-        <CircularProgress />
-      </Box>
-    );
-  }
+  useEffect(() => {
+    if (!session?.user && router.query.conversationId) {
+      router.replace(process.env.NEXT_PUBLIC_BASE_URL as string);
+    }
+  }, [session?.user, router.query]);
 
   return (
-    <Box sx={{ p: 4 }}>
-      {session?.user ?.username? <Chat session={session}/> : <Auth session={session} reloadSession={function (): void {
-        throw new Error('Function not implemented.');
-      } }/>}
+    <Box sx={{ width: "100%" }}>
+      {session && session?.user?.username ? (
+        <Chat session={session} />
+      ) : (
+        <Auth session={session} reloadSession={reloadSession} />
+      )}
     </Box>
   );
-}
+};
 
-export async function getServerSideProps(context: NextPageContext) {
-  const userData = await getSession(context);
+export async function getServerSideProps(ctx: NextPageContext) {
+  const session = await getSession(ctx);
+
   return {
     props: {
-      userData,
+      session,
     },
   };
 }
+
+export default Home;

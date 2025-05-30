@@ -1,6 +1,7 @@
 import { useMutation } from "@apollo/client";
 import { Box, TextField } from "@mui/material";
-import { ObjectId } from "bson";
+// import { ObjectID } from "mongodb";
+  import { v4 as uuidv4 } from "uuid";
 import { Session } from "next-auth";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
@@ -25,17 +26,16 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
   const onSendMessage = async (event: React.FormEvent) => {
     event.preventDefault();
-
     try {
       const { id: senderId } = session.user;
-      const newId = new ObjectId().toString();
+    
+const newId = uuidv4();
       const newMessage: SendMessageVariables = {
         id: newId,
         senderId,
         conversationId,
         body: messageBody,
       };
-      
       const { data, errors } = await sendMessage({
         variables: {
           ...newMessage,
@@ -85,24 +85,25 @@ const MessageInput: React.FC<MessageInputProps> = ({
   };
 
   return (
-    <Box px={4} py={6} width="100%">
+    <Box sx={{ px: 2, py: 3, width: "100%" }}>
       <form onSubmit={onSendMessage}>
         <TextField
           fullWidth
           value={messageBody}
           onChange={(event) => setMessageBody(event.target.value)}
-          size="medium"
+          size="small"
           placeholder="New message"
           sx={{
-            "& .MuiInputBase-root": {
-              color: "white",
-            },
             "& .MuiOutlinedInput-root": {
+              color: "text.primary",
               "& fieldset": {
-                borderColor: "rgba(255, 255, 255, 0.3)",
+                borderColor: "divider",
               },
               "&:hover fieldset": {
-                borderColor: "rgba(255, 255, 255, 0.3)",
+                borderColor: "divider",
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: "divider",
               },
             },
           }}
@@ -111,5 +112,4 @@ const MessageInput: React.FC<MessageInputProps> = ({
     </Box>
   );
 };
-
 export default MessageInput;

@@ -1,4 +1,4 @@
-import { Avatar, Button, Stack, Typography, Box } from "@mui/material";
+import { Avatar, Button, Stack, Typography, Box, CircularProgress } from "@mui/material";
 import React from "react";
 import { SearchedUser } from "../../../../util/types";
 
@@ -16,29 +16,29 @@ const UserList: React.FC<UserListProps> = ({
   return (
     <>
       {users.length === 0 ? (
-        <Box sx={{ mt: 6, display: "flex", justifyContent: "center" }}>
-          <Typography>No users found</Typography>
+        <Box mt={3} display="flex" justifyContent="center">
+          <Typography variant="body1">No users found</Typography>
         </Box>
       ) : (
-        <Stack sx={{ mt: 6 }}>
+        <Stack mt={3} spacing={1}>
           {users.map((user) => (
             <Stack
               key={user.username}
               direction="row"
               alignItems="center"
               spacing={2}
+              py={1}
+              px={2}
+              borderRadius={1}
               sx={{
-                py: 2,
-                px: 4,
-                borderRadius: 1,
-                "&:hover": { bgcolor: "rgba(255, 255, 255, 0.1)" },
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                }
               }}
             >
               <Avatar />
-              <Box sx={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
-                <Typography color="rgba(255, 255, 255, 0.7)">
-                  {user.username}
-                </Typography>
+              <Box display="flex" justifyContent="space-between" width="100%">
+                <Typography color="text.secondary">{user.username}</Typography>
                 <Button
                   variant="contained"
                   color="primary"
@@ -46,10 +46,7 @@ const UserList: React.FC<UserListProps> = ({
                     (participant) => participant.id === user.id
                   )}
                   onClick={() => addParticipant(user)}
-                  sx={{
-                    bgcolor: "primary.main",
-                    "&:hover": { bgcolor: "primary.dark" },
-                  }}
+                  size="small"
                 >
                   Select
                 </Button>

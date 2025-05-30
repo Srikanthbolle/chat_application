@@ -1,13 +1,11 @@
-import { Box } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { Session } from "next-auth";
 import { useRouter } from "next/router";
 import React from "react";
-
+import MessageInput from "./Input";
 import MessagesHeader from "./Messages/Header";
 import Messages from "./Messages/Messages";
-import MessageInput from "./Input";
 import NoConversationSelected from "./NoConversationSelected";
-
 
 interface FeedWrapperProps {
   session: Session;
@@ -20,10 +18,7 @@ const FeedWrapper: React.FC<FeedWrapperProps> = ({ session }) => {
   return (
     <Box
       sx={{
-        display: {
-          xs: conversationId ? "flex" : "none",
-          md: "flex",
-        },
+        display: { xs: conversationId ? "flex" : "none", md: "flex" },
         flexDirection: "column",
         width: "100%",
       }}
@@ -56,5 +51,4 @@ const FeedWrapper: React.FC<FeedWrapperProps> = ({ session }) => {
     </Box>
   );
 };
-
 export default FeedWrapper;

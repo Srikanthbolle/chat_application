@@ -6,17 +6,13 @@ export interface IModalContext {
   closeModal: () => void;
 }
 
-export const ModalContext = React.createContext<IModalContext>({
-  modalOpen: false,
-  openModal: () => {},
-  closeModal: () => {},
-});
+export const ModalContext = React.createContext<any>({});
 
 interface ConversationModalProps {
   children: ReactNode;
 }
 
-export const ModalProvider = ({ children }: ConversationModalProps) => {
+const ConversationModalProvider = ({ children }: ConversationModalProps) => {
   const [modalOpen, setModalOpen] = useState(false);
 
   const openModal = () => setModalOpen(true);
@@ -33,4 +29,4 @@ export const ModalProvider = ({ children }: ConversationModalProps) => {
   );
 };
 
-export default ModalProvider;
+export default ConversationModalProvider;

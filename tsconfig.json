@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+      "typeRoots": ["./types", "./node_modules/@types"],
     // "types": ["@emotion/react/types/css-prop"],
     "target": "ESNext",
     "lib": ["dom", "dom.iterable", "esnext"],

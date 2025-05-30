@@ -1,13 +1,13 @@
+import { Button, Box, Stack, Typography } from "@mui/material";
 import React, { useContext } from "react";
-import { Button, Stack, Typography, Box } from "@mui/material";
 import { BiMessageSquareDots } from "react-icons/bi";
 import { ConversationsData } from "../../../util/types";
 import ConversationOperations from "../../../graphql/operations/conversations";
 import { useQuery } from "@apollo/client";
 import { IModalContext, ModalContext } from "../../../context/ModalContext";
 
-const NoConversation: React.FC = () => {
-  const { data, loading, error } = useQuery<ConversationsData>(
+const NoConversationSelected: React.FC = () => {
+  const { data, loading, error } = useQuery<ConversationsData, null>(
     ConversationOperations.Queries.conversations
   );
   const { openModal } = useContext<IModalContext>(ModalContext);
@@ -23,8 +23,8 @@ const NoConversation: React.FC = () => {
   return (
     <Box
       sx={{
-        display: "flex",
         height: "100%",
+        display: "flex",
         justifyContent: "center",
         alignItems: "center",
       }}
@@ -32,17 +32,12 @@ const NoConversation: React.FC = () => {
       <Stack spacing={4} alignItems="center">
         <Typography variant="h4">{text}</Typography>
         {hasConversations ? (
-          <BiMessageSquareDots fontSize={90} />
+          <BiMessageSquareDots size={90} />
         ) : (
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
+            color="primary"
             onClick={openModal}
-            sx={{
-              bgcolor: 'primary.main',
-              '&:hover': {
-                bgcolor: 'primary.dark',
-              }
-            }}
           >
             Create Conversation
           </Button>
@@ -51,5 +46,4 @@ const NoConversation: React.FC = () => {
     </Box>
   );
 };
-
-export default NoConversation;
+export default NoConversationSelected;

@@ -1,5 +1,5 @@
 import { useMutation } from "@apollo/client";
-import { Avatar, Box, Button, CircularProgress, Container, Stack, TextField, Typography } from "@mui/material";
+import { Avatar, Box, Button, CircularProgress, Container, Input, Stack, Typography } from "@mui/material";
 import { Session } from "next-auth";
 import { signIn } from "next-auth/react";
 import React, { useState } from "react";
@@ -19,7 +19,7 @@ const Auth: React.FC<AuthProps> = ({ session, reloadSession }) => {
     CreateUsernameData,
     CreateUsernameVariables
   >(UserOperations.Mutations.createUsername);
-
+console.log('first',data)
   const onSubmit = async () => {
     if (!username) return;
 
@@ -43,12 +43,9 @@ const Auth: React.FC<AuthProps> = ({ session, reloadSession }) => {
         return;
       }
 
-      toast.success("Username successfully created");
+     toast.success("Username successfully created");
+reloadSession(); // will fetch session with updated username
 
-      /**
-       * Reload session to obtain new username
-       */
-      reloadSession();
     } catch (error) {
       toast.error("There was an error");
       console.log("onSubmit error", error);
@@ -57,24 +54,24 @@ const Auth: React.FC<AuthProps> = ({ session, reloadSession }) => {
 
   return (
     <Container maxWidth="sm" sx={{ height: "100vh", display: "flex", alignItems: "center" }}>
-      <Stack spacing={4} sx={{ width: "100%", textAlign: "center" }}>
+      <Stack spacing={4} sx={{ width: "100%" }} alignItems="center">
         {session ? (
           <>
             <Typography variant="h4">Create a Username</Typography>
-            <TextField
+            <Input
+              fullWidth
               placeholder="Enter a username"
               value={username}
               onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                 setUsername(event.target.value)
               }
-              fullWidth
             />
             <Button 
               onClick={onSubmit} 
+              fullWidth 
               variant="contained" 
-              fullWidth
               disabled={loading}
-              endIcon={loading ? <CircularProgress size={20} /> : null}
+              startIcon={loading ? <CircularProgress size={20} /> : null}
             >
               Save
             </Button>
@@ -82,19 +79,20 @@ const Auth: React.FC<AuthProps> = ({ session, reloadSession }) => {
         ) : (
           <>
             <Avatar 
-              src="/images/imessage-logo.png" 
-              sx={{ width: 100, height: 100, margin: "0 auto" }} 
+              src="/imessenger.jpg" 
+              sx={{ width: 100, height: 100 }}
+              variant="square"
             />
             <Typography variant="h3">MessengerQL</Typography>
-            <Typography sx={{ width: "70%", margin: "0 auto" }}>
-              Sign in with Google to send unlimited free messages to your
-              friends
+            <Typography variant="body1" textAlign="center" sx={{ width: "70%" }}>
+              Sign in with Google to send unlimited free messages to your friends
             </Typography>
             <Button
               onClick={() => signIn("google")}
               variant="contained"
-              startIcon={<Avatar src="/images/googlelogo.png" sx={{ width: 20, height: 20 }} />}
-              sx={{ margin: "0 auto" }}
+              startIcon={<Avatar src="/googlelogo.png" sx={{ width: 20, height: 20 }} />}
+              fullWidth
+              sx={{ textTransform: "none" }}
             >
               Continue with Google
             </Button>
